@@ -793,9 +793,6 @@ func constructPeerHost(ctx context.Context, id peer.ID, ps pstore.Peerstore, bwr
 	if !opts.DisableNatPortMap {
 		hostOpts = append(hostOpts, p2pbhost.NATPortMap)
 	}
-	if opts.AddrsFactory != nil {
-		hostOpts = append(hostOpts, opts.AddrsFactory)
-	}
 
 	addrsFactory := opts.AddrsFactory
 	if !opts.DisableRelay {
