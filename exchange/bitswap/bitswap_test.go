@@ -14,12 +14,12 @@ import (
 	tn "github.com/ipfs/go-ipfs/exchange/bitswap/testnet"
 	mockrouting "github.com/ipfs/go-ipfs/routing/mock"
 	delay "github.com/ipfs/go-ipfs/thirdparty/delay"
-	travis "github.com/ipfs/go-ipfs/thirdparty/testutil/ci/travis"
 	blocks "gx/ipfs/QmVA4mafxbfH5aEvNz8fyoxC6J1xhAtw88B4GerPznSZBg/go-block-format"
+	travis "gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil/ci/travis"
 
 	detectrace "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-detect-race"
 
-	p2ptestutil "gx/ipfs/QmSTbByZ1rJVn8KANcoiLDiPH2pgDaz33uT6JW6B9nMBW5/go-libp2p-netutil"
+	p2ptestutil "gx/ipfs/QmPVjuusqQxSZrE3e35qvnge8n7Hs7NnfkHyFdkaBkWQdB/go-libp2p-netutil"
 	cid "gx/ipfs/QmTprEaAA2A9bst5XH7exuyi5KzNMK3SEDNN8rBDnKWcUS/go-cid"
 )
 

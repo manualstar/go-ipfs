@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	ci "github.com/ipfs/go-ipfs/thirdparty/testutil/ci"
+	ci "gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil/ci"
 
 	"context"
 	cid "gx/ipfs/QmTprEaAA2A9bst5XH7exuyi5KzNMK3SEDNN8rBDnKWcUS/go-cid"

@@ -19,8 +19,8 @@ import (
 	"github.com/ipfs/go-ipfs/repo"
 	"github.com/ipfs/go-ipfs/repo/config"
 	pi "github.com/ipfs/go-ipfs/thirdparty/posinfo"
-	"github.com/ipfs/go-ipfs/thirdparty/testutil"
 	"gx/ipfs/QmVA4mafxbfH5aEvNz8fyoxC6J1xhAtw88B4GerPznSZBg/go-block-format"
+	"gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil"
 
 	cid "gx/ipfs/QmTprEaAA2A9bst5XH7exuyi5KzNMK3SEDNN8rBDnKWcUS/go-cid"
 )

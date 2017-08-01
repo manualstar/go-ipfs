@@ -8,9 +8,9 @@ import (
 	tn "github.com/ipfs/go-ipfs/exchange/bitswap/testnet"
 	datastore2 "github.com/ipfs/go-ipfs/thirdparty/datastore2"
 	delay "github.com/ipfs/go-ipfs/thirdparty/delay"
-	testutil "github.com/ipfs/go-ipfs/thirdparty/testutil"
+	testutil "gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil"
 
-	p2ptestutil "gx/ipfs/QmSTbByZ1rJVn8KANcoiLDiPH2pgDaz33uT6JW6B9nMBW5/go-libp2p-netutil"
+	p2ptestutil "gx/ipfs/QmPVjuusqQxSZrE3e35qvnge8n7Hs7NnfkHyFdkaBkWQdB/go-libp2p-netutil"
 	ds "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore"
 	ds_sync "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/sync"
 	peer "gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer"

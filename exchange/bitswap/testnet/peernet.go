@@ -4,10 +4,10 @@ import (
 	"context"
 	bsnet "github.com/ipfs/go-ipfs/exchange/bitswap/network"
 	mockrouting "github.com/ipfs/go-ipfs/routing/mock"
-	testutil "github.com/ipfs/go-ipfs/thirdparty/testutil"
 	ds "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore"
 	peer "gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer"
-	mockpeernet "gx/ipfs/QmZPBrKq6S1fdYaRAzYZivJL12QkUqHwnNzF9wC8VXC4bo/go-libp2p/p2p/net/mock"
+	testutil "gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil"
+	mockpeernet "gx/ipfs/QmdYrd8ygc6EuRcQj4XsVr5ajx945v9PizJHXUoDdX7VSn/go-libp2p/p2p/net/mock"
 )
 
 type peernet struct {

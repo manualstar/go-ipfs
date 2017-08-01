@@ -14,9 +14,9 @@ import (
 	mdag "github.com/ipfs/go-ipfs/merkledag"
 	repo "github.com/ipfs/go-ipfs/repo"
 	config "github.com/ipfs/go-ipfs/repo/config"
-	testutil "github.com/ipfs/go-ipfs/thirdparty/testutil"
 	unixfs "github.com/ipfs/go-ipfs/unixfs"
 	cbor "gx/ipfs/QmXgUVPAxjMLZSyxx818YstJJAoRg3nyPWENmBLVzLtoax/go-ipld-cbor"
+	testutil "gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil"
 )
 
 // `echo -n 'hello, world!' | ipfs add`

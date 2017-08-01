@@ -3,8 +3,8 @@ package offline
 import (
 	"bytes"
 	"context"
-	"github.com/ipfs/go-ipfs/thirdparty/testutil"
 	ds "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore"
+	"gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil"
 	"testing"
 )
 

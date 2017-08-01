@@ -6,7 +6,7 @@ import (
 	context "context"
 	"github.com/ipfs/go-ipfs/repo"
 	config "github.com/ipfs/go-ipfs/repo/config"
-	"github.com/ipfs/go-ipfs/thirdparty/testutil"
+	"gx/ipfs/QmYazuWNCrC7LXeRt3utQuRsCDufpNM176rD1efuvF2pWJ/go-testutil"
 )
 
 func TestInitialization(t *testing.T) {

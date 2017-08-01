@@ -19,7 +19,7 @@ import (
 	b58 "gx/ipfs/QmT8rehPR3F6bmwL6zjUN8XpiDBFFpMP2myPdC6ApsWfJf/go-base58"
 	cid "gx/ipfs/QmTprEaAA2A9bst5XH7exuyi5KzNMK3SEDNN8rBDnKWcUS/go-cid"
 	peer "gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer"
-	ipdht "gx/ipfs/QmcKxeQomXUjo54VwisTiXeic5FFBknwUPtT7yRWvmPD1D/go-libp2p-kad-dht"
+	ipdht "gx/ipfs/QmZRKQ5zeRxJHn9e1fP72nVXGydCzvMN6oz5Q3P8DtT7Jv/go-libp2p-kad-dht"
 )
 
 var ErrNotDHT = errors.New("routing service is not a DHT")
