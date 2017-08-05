@@ -51,10 +51,8 @@ func NewDagModifier(ctx context.Context, from node.Node, serv mdag.DAGService, s
 	rawLeaves := false
 	switch from.(type) {
 	case *mdag.ProtoNode:
-		println("protonode dag modifier")
 		// ok
 	case *mdag.RawNode:
-		println("rawnode dag modifier")
 		rawLeaves = true
 	default:
 		return nil, ErrNotUnixfs

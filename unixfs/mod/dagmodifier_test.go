@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"encoding/hex"
-
 	h "github.com/ipfs/go-ipfs/importer/helpers"
 	trickle "github.com/ipfs/go-ipfs/importer/trickle"
 
@@ -64,11 +62,7 @@ func testModWrite(t *testing.T, beg, size uint64, orig []byte, dm *DagModifier, 
 
 	err = testu.ArrComp(after, orig)
 	if err != nil {
-		println("... orig ...")
-		println(hex.Dump(orig[:100]))
-		println("... after ...")
-		println(hex.Dump(after[:100]))
-		t.Error(err)
+		t.Fatal(err)
 	}
 	return orig
 }
