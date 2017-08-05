@@ -19,10 +19,23 @@ import (
 	u "gx/ipfs/QmWbjfz3u6HkAdPh34dgPchGbQjob6LXLhAeCGii2TX69n/go-ipfs-util"
 )
 
-func buildTestDag(ds merkledag.DAGService, spl chunk.Splitter) (*merkledag.ProtoNode, error) {
+type UseRawLeaves bool
+
+const (
+	ProtoBufLeaves UseRawLeaves = false
+	RawLeaves      UseRawLeaves = true
+)
+
+func runBothSubtests(t *testing.T, tfunc func(*testing.T, UseRawLeaves)) {
+	t.Run("leaves=ProtoBuf", func(t *testing.T) { tfunc(t, ProtoBufLeaves) })
+	t.Run("leaves=Raw", func(t *testing.T) { tfunc(t, RawLeaves) })
+}
+
+func buildTestDag(ds merkledag.DAGService, spl chunk.Splitter, rawLeaves UseRawLeaves) (*merkledag.ProtoNode, error) {
 	dbp := h.DagBuilderParams{
-		Dagserv:  ds,
-		Maxlinks: h.DefaultLinksPerBlock,
+		Dagserv:   ds,
+		Maxlinks:  h.DefaultLinksPerBlock,
+		RawLeaves: bool(rawLeaves),
 	}
 
 	nd, err := TrickleLayout(dbp.New(spl))
@@ -38,22 +51,28 @@ func buildTestDag(ds merkledag.DAGService, spl chunk.Splitter) (*merkledag.Proto
 	return pbnd, VerifyTrickleDagStructure(pbnd, VerifyParams{
 		Getter:      ds,
 		Direct:      dbp.Maxlinks,
-		LayerRepeat: layerRepeat})
+		LayerRepeat: layerRepeat,
+		RawLeaves:   bool(rawLeaves),
+	})
 }
 
 //Test where calls to read are smaller than the chunk size
 func TestSizeBasedSplit(t *testing.T) {
+	runBothSubtests(t, testSizeBasedSplit)
+}
+
+func testSizeBasedSplit(t *testing.T, rawLeaves UseRawLeaves) {
 	if testing.Short() {
 		t.SkipNow()
 	}
 	bs := chunk.SizeSplitterGen(512)
-	testFileConsistency(t, bs, 32*512)
+	testFileConsistency(t, bs, 32*512, rawLeaves)
 
 	bs = chunk.SizeSplitterGen(4096)
-	testFileConsistency(t, bs, 32*4096)
+	testFileConsistency(t, bs, 32*4096, rawLeaves)
 
 	// Uneven offset
-	testFileConsistency(t, bs, 31*4095)
+	testFileConsistency(t, bs, 31*4095, rawLeaves)
 }
 
 func dup(b []byte) []byte {
@@ -62,13 +81,13 @@ func dup(b []byte) []byte {
 	return o
 }
 
-func testFileConsistency(t *testing.T, bs chunk.SplitterGen, nbytes int) {
+func testFileConsistency(t *testing.T, bs chunk.SplitterGen, nbytes int, rawLeaves UseRawLeaves) {
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, bs(read))
+	nd, err := buildTestDag(ds, bs(read), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,12 +109,16 @@ func testFileConsistency(t *testing.T, bs chunk.SplitterGen, nbytes int) {
 }
 
 func TestBuilderConsistency(t *testing.T) {
+	runBothSubtests(t, testBuilderConsistency)
+}
+
+func testBuilderConsistency(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := 100000
 	buf := new(bytes.Buffer)
 	io.CopyN(buf, u.NewTimeSeededRand(), int64(nbytes))
 	should := dup(buf.Bytes())
 	dagserv := mdtest.Mock()
-	nd, err := buildTestDag(dagserv, chunk.DefaultSplitter(buf))
+	nd, err := buildTestDag(dagserv, chunk.DefaultSplitter(buf), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -128,6 +151,10 @@ func arrComp(a, b []byte) error {
 }
 
 func TestIndirectBlocks(t *testing.T) {
+	runBothSubtests(t, testIndirectBlocks)
+}
+
+func testIndirectBlocks(t *testing.T, rawLeaves UseRawLeaves) {
 	splitter := chunk.SizeSplitterGen(512)
 	nbytes := 1024 * 1024
 	buf := make([]byte, nbytes)
@@ -136,7 +163,7 @@ func TestIndirectBlocks(t *testing.T) {
 	read := bytes.NewReader(buf)
 
 	ds := mdtest.Mock()
-	dag, err := buildTestDag(ds, splitter(read))
+	dag, err := buildTestDag(ds, splitter(read), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -157,13 +184,17 @@ func TestIndirectBlocks(t *testing.T) {
 }
 
 func TestSeekingBasic(t *testing.T) {
+	runBothSubtests(t, testSeekingBasic)
+}
+
+func testSeekingBasic(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(10 * 1024)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 512))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 512), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -194,13 +225,17 @@ func TestSeekingBasic(t *testing.T) {
 }
 
 func TestSeekToBegin(t *testing.T) {
+	runBothSubtests(t, testSeekToBegin)
+}
+
+func testSeekToBegin(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(10 * 1024)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -238,13 +273,17 @@ func TestSeekToBegin(t *testing.T) {
 }
 
 func TestSeekToAlmostBegin(t *testing.T) {
+	runBothSubtests(t, testSeekToAlmostBegin)
+}
+
+func testSeekToAlmostBegin(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(10 * 1024)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -282,13 +321,17 @@ func TestSeekToAlmostBegin(t *testing.T) {
 }
 
 func TestSeekEnd(t *testing.T) {
+	runBothSubtests(t, testSeekEnd)
+}
+
+func testSeekEnd(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(50 * 1024)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -308,13 +351,17 @@ func TestSeekEnd(t *testing.T) {
 }
 
 func TestSeekEndSingleBlockFile(t *testing.T) {
+	runBothSubtests(t, testSeekEndSingleBlockFile)
+}
+
+func testSeekEndSingleBlockFile(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(100)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 5000))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 5000), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -334,13 +381,17 @@ func TestSeekEndSingleBlockFile(t *testing.T) {
 }
 
 func TestSeekingStress(t *testing.T) {
+	runBothSubtests(t, testSeekingStress)
+}
+
+func testSeekingStress(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(1024 * 1024)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 1000))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 1000), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -379,13 +430,17 @@ func TestSeekingStress(t *testing.T) {
 }
 
 func TestSeekingConsistency(t *testing.T) {
+	runBothSubtests(t, testSeekingConsistency)
+}
+
+func testSeekingConsistency(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(128 * 1024)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(should)
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -422,6 +477,10 @@ func TestSeekingConsistency(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
+	runBothSubtests(t, testAppend)
+}
+
+func testAppend(t *testing.T, rawLeaves UseRawLeaves) {
 	nbytes := int64(128 * 1024)
 	should := make([]byte, nbytes)
 	u.NewTimeSeededRand().Read(should)
@@ -429,14 +488,15 @@ func TestAppend(t *testing.T) {
 	// Reader for half the bytes
 	read := bytes.NewReader(should[:nbytes/2])
 	ds := mdtest.Mock()
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	dbp := &h.DagBuilderParams{
-		Dagserv:  ds,
-		Maxlinks: h.DefaultLinksPerBlock,
+		Dagserv:   ds,
+		Maxlinks:  h.DefaultLinksPerBlock,
+		RawLeaves: bool(rawLeaves),
 	}
 
 	r := bytes.NewReader(should[nbytes/2:])
@@ -450,7 +510,9 @@ func TestAppend(t *testing.T) {
 	err = VerifyTrickleDagStructure(nnode, VerifyParams{
 		Getter:      ds,
 		Direct:      dbp.Maxlinks,
-		LayerRepeat: layerRepeat})
+		LayerRepeat: layerRepeat,
+		RawLeaves:   bool(rawLeaves),
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -473,6 +535,10 @@ func TestAppend(t *testing.T) {
 
 // This test appends one byte at a time to an empty file
 func TestMultipleAppends(t *testing.T) {
+	runBothSubtests(t, testMultipleAppends)
+}
+
+func testMultipleAppends(t *testing.T, rawLeaves UseRawLeaves) {
 	ds := mdtest.Mock()
 
 	// TODO: fix small size appends and make this number bigger
@@ -481,14 +547,15 @@ func TestMultipleAppends(t *testing.T) {
 	u.NewTimeSeededRand().Read(should)
 
 	read := bytes.NewReader(nil)
-	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500))
+	nd, err := buildTestDag(ds, chunk.NewSizeSplitter(read, 500), rawLeaves)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	dbp := &h.DagBuilderParams{
-		Dagserv:  ds,
-		Maxlinks: 4,
+		Dagserv:   ds,
+		Maxlinks:  4,
+		RawLeaves: bool(rawLeaves),
 	}
 
 	spl := chunk.SizeSplitterGen(500)
@@ -504,7 +571,9 @@ func TestMultipleAppends(t *testing.T) {
 		err = VerifyTrickleDagStructure(nnode, VerifyParams{
 			Getter:      ds,
 			Direct:      dbp.Maxlinks,
-			LayerRepeat: layerRepeat})
+			LayerRepeat: layerRepeat,
+			RawLeaves:   bool(rawLeaves),
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
