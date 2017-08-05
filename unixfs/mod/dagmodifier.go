@@ -261,11 +261,20 @@ func (dm *DagModifier) modifyDag(n node.Node, offset uint64, data io.Reader) (*c
 		case *mdag.RawNode:
 			origData := nd0.RawData()
 			bytes := make([]byte, len(origData))
+
+			// copy orig data up to offset
 			copy(bytes, origData[:offset])
 
+			// copy in new data
 			n, err := data.Read(bytes[offset:])
 			if err != nil && err != io.EOF {
 				return nil, false, err
+			}
+
+			// copy remaining data
+			offsetPlusN := int(offset) + n
+			if offsetPlusN < len(origData) {
+				copy(bytes[offsetPlusN:], origData[offsetPlusN:])
 			}
 
 			nd, err := mdag.NewRawNodeWPrefix(bytes, nd0.Cid().Prefix())
